@@ -1,0 +1,87 @@
+// Design tokens — única fuente de verdad para color, espaciado y tipografía.
+//
+// Los componentes nunca hardcodean colores: consumen estas variables CSS. El
+// tema oscuro se resuelve automáticamente con `prefers-color-scheme`, sin
+// JavaScript ni servicio de tema (YAGNI: el ejercicio no pide un selector
+// manual de tema).
+
+:root {
+  // Color de marca
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-500: #4f46e5;
+  --color-brand-600: #4338ca;
+  --color-brand-700: #3730a3;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #dc2626;
+  --color-danger-600: #b91c1c;
+
+  --color-success-50: #f0fdf4;
+  --color-success-600: #16a34a;
+
+  // Superficie / texto (modo claro por defecto)
+  --color-bg: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-border: #e2e4ec;
+  --color-text: #1a1b25;
+  --color-text-muted: #656a7c;
+  --color-text-inverse: #ffffff;
+
+  --shadow-card: 0 1px 2px rgba(20, 21, 41, 0.06), 0 1px 1px rgba(20, 21, 41, 0.04);
+  --shadow-raised: 0 8px 24px rgba(20, 21, 41, 0.12);
+
+  // Tipografía
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+
+  // Espaciado (escala de 4px)
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  // Tamaño mínimo de objetivo táctil (accesibilidad)
+  --hit-target: 44px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-brand-50: #1e1b4b;
+    --color-brand-100: #312e81;
+    --color-brand-500: #818cf8;
+    --color-brand-600: #a5b4fc;
+    --color-brand-700: #c7d2fe;
+
+    --color-danger-50: #3f1d1d;
+    --color-danger-500: #f87171;
+    --color-danger-600: #fca5a5;
+
+    --color-success-50: #0f2e1c;
+    --color-success-600: #4ade80;
+
+    --color-bg: #101119;
+    --color-surface: #181a24;
+    --color-surface-raised: #1f212c;
+    --color-border: #2b2e3b;
+    --color-text: #f1f2f7;
+    --color-text-muted: #9a9db1;
+    --color-text-inverse: #101119;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
+    --shadow-raised: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+}

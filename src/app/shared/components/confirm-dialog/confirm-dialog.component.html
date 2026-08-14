@@ -1,0 +1,35 @@
+@if (open()) {
+  <div class="backdrop">
+    <button
+      type="button"
+      class="backdrop__overlay"
+      aria-label="Cerrar diálogo"
+      (click)="cancelled.emit()"
+    ></button>
+    <div
+      class="dialog"
+      role="alertdialog"
+      aria-modal="true"
+      [attr.aria-label]="title()"
+    >
+      <h2 class="dialog__title">{{ title() }}</h2>
+      @if (message(); as text) {
+        <p class="dialog__message">{{ text }}</p>
+      }
+      <div class="dialog__actions">
+        <button type="button" class="btn btn--ghost" (click)="cancelled.emit()">
+          {{ cancelLabel() }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [class.btn--danger]="danger()"
+          [class.btn--primary]="!danger()"
+          (click)="confirmed.emit()"
+        >
+          {{ confirmLabel() }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

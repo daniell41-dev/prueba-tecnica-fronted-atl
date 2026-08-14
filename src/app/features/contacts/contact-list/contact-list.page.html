@@ -1,0 +1,52 @@
+<header class="page-header">
+  <h1 class="page-header__title">Contactos</h1>
+  <a routerLink="/contacts/new" class="btn btn--primary">+ Nuevo</a>
+</header>
+
+<div class="page-toolbar">
+  <app-search-field [value]="store.query()" (valueChange)="onSearch($event)" />
+</div>
+
+@switch (store.status()) {
+  @case ('loading') {
+    <app-spinner label="Cargando contactos…" />
+  }
+
+  @case ('error') {
+    <app-empty-state
+      icon="⚠️"
+      title="No se pudo cargar la lista"
+      [description]="store.error()"
+      actionLabel="Reintentar"
+      (action)="onRetry()"
+    />
+  }
+
+  @default {
+    @if (store.totalCount() === 0) {
+      <app-empty-state
+        icon="👤"
+        title="Aún no tienes contactos"
+        description="Agrega el primero para empezar tu agenda."
+        actionLabel="Restablecer datos de ejemplo"
+        (action)="onResetSeed()"
+      />
+    } @else if (store.visibleCount() === 0) {
+      <app-empty-state icon="🔍" title="Sin resultados" description="Prueba con otro término de búsqueda." />
+    } @else {
+      <p class="page-toolbar__count">
+        {{ store.visibleCount() }} de {{ store.totalCount() }} contacto{{ store.totalCount() === 1 ? '' : 's' }}
+      </p>
+
+      <ul class="contact-list">
+        @for (contact of store.filteredContacts(); track contact.id) {
+          <li>
+            <a class="contact-list__link" [routerLink]="['/contacts', contact.id]">
+              <app-contact-card [contact]="contact" (favoriteToggled)="onToggleFavorite(contact)" />
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  }
+}

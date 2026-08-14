@@ -1,0 +1,21 @@
+<label class="search-field">
+  <span class="search-field__icon" aria-hidden="true">🔍</span>
+  <input
+    type="search"
+    class="search-field__input"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    (input)="onInput($event)"
+    aria-label="Buscar contacto"
+  />
+  @if (value()) {
+    <button
+      type="button"
+      class="search-field__clear"
+      aria-label="Limpiar búsqueda"
+      (click)="clear()"
+    >
+      ✕
+    </button>
+  }
+</label>

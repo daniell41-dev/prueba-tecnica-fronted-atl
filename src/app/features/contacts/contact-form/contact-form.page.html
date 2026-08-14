@@ -1,0 +1,84 @@
+@if (notFound()) {
+  <p class="form-hint">No se encontró el contacto a editar.</p>
+  <a routerLink="/contacts" class="btn btn--ghost">Volver a la lista</a>
+} @else {
+  <header class="page-header">
+    <h1 class="page-header__title">{{ isEditMode ? 'Editar contacto' : 'Nuevo contacto' }}</h1>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="field-row">
+      <label class="field">
+        <span class="field__label">Nombre</span>
+        <input
+          type="text"
+          formControlName="firstName"
+          autocomplete="given-name"
+          [attr.aria-invalid]="form.controls.firstName.invalid && form.controls.firstName.touched"
+        />
+        @if (form.controls.firstName.touched) {
+          <app-field-error [errors]="form.controls.firstName.errors" />
+        }
+      </label>
+
+      <label class="field">
+        <span class="field__label">Apellido</span>
+        <input
+          type="text"
+          formControlName="lastName"
+          autocomplete="family-name"
+          [attr.aria-invalid]="form.controls.lastName.invalid && form.controls.lastName.touched"
+        />
+        @if (form.controls.lastName.touched) {
+          <app-field-error [errors]="form.controls.lastName.errors" />
+        }
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field__label">Correo (opcional)</span>
+      <input
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+      />
+      @if (form.controls.email.touched) {
+        <app-field-error [errors]="form.controls.email.errors" />
+      }
+    </label>
+
+    <label class="field">
+      <span class="field__label">Empresa (opcional)</span>
+      <input type="text" formControlName="company" autocomplete="organization" />
+      @if (form.controls.company.touched) {
+        <app-field-error [errors]="form.controls.company.errors" />
+      }
+    </label>
+
+    <fieldset class="field">
+      <legend class="field__label">Teléfonos</legend>
+      <app-phone-fieldset [array]="phones" />
+      @if (phones.touched && phones.hasError('minArrayLength')) {
+        <app-field-error [errors]="phones.errors" />
+      }
+    </fieldset>
+
+    <div class="page-actions">
+      <button type="button" class="btn btn--ghost" (click)="onCancel()">Cancelar</button>
+      <button type="submit" class="btn btn--primary" [disabled]="saving()">
+        {{ saving() ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+
+  <app-confirm-dialog
+    [open]="confirmingDiscard()"
+    title="¿Descartar cambios?"
+    message="Perderás los cambios que no has guardado."
+    confirmLabel="Descartar"
+    [danger]="true"
+    (confirmed)="confirmDiscard()"
+    (cancelled)="cancelDiscard()"
+  />
+}

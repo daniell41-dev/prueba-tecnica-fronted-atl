@@ -1,0 +1,64 @@
+@if (store.loading()) {
+  <p class="loading-hint">Cargando…</p>
+} @else if (contact(); as contact) {
+  <header class="page-header">
+    <a routerLink="/contacts" class="back-link" aria-label="Volver a la lista">← Contactos</a>
+  </header>
+
+  <section class="profile">
+    <app-avatar [firstName]="contact.firstName" [lastName]="contact.lastName" size="lg" />
+    <h1 class="profile__name">{{ fullName(contact) }}</h1>
+    @if (contact.company) {
+      <p class="profile__company">{{ contact.company }}</p>
+    }
+
+    <button
+      type="button"
+      class="profile__favorite"
+      [class.profile__favorite--active]="contact.favorite"
+      [attr.aria-pressed]="contact.favorite"
+      (click)="onToggleFavorite()"
+    >
+      {{ contact.favorite ? '★ En favoritos' : '☆ Marcar como favorito' }}
+    </button>
+  </section>
+
+  <section class="details">
+    <h2 class="details__title">Teléfonos</h2>
+    <ul class="details__list">
+      @for (phone of contact.phones; track phone.id) {
+        <li>
+          <span class="details__label">{{ phoneLabels[phone.label] }}</span>
+          <a [href]="'tel:' + phone.number">{{ phone.number | phoneFormat }}</a>
+        </li>
+      }
+    </ul>
+
+    @if (contact.email) {
+      <h2 class="details__title">Correo</h2>
+      <a class="details__email" [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+    }
+  </section>
+
+  <footer class="page-actions">
+    <a class="btn btn--ghost" [routerLink]="['/contacts', contact.id, 'edit']">Editar</a>
+    <button type="button" class="btn btn--danger" (click)="askDelete()">Eliminar</button>
+  </footer>
+
+  <app-confirm-dialog
+    [open]="confirmingDelete()"
+    title="¿Eliminar contacto?"
+    [message]="'Se eliminará a ' + fullName(contact) + ' de forma permanente.'"
+    confirmLabel="Eliminar"
+    [danger]="true"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
+} @else {
+  <app-empty-state
+    icon="🤷"
+    title="Contacto no encontrado"
+    actionLabel="Volver a la lista"
+    (action)="goToList()"
+  />
+}

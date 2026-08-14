@@ -1,0 +1,12 @@
+<div class="empty-state">
+  <span class="empty-state__icon" aria-hidden="true">{{ icon() }}</span>
+  <h2 class="empty-state__title">{{ title() }}</h2>
+  @if (description(); as text) {
+    <p class="empty-state__description">{{ text }}</p>
+  }
+  @if (actionLabel(); as label) {
+    <button type="button" class="empty-state__action" (click)="action.emit()">
+      {{ label }}
+    </button>
+  }
+</div>
