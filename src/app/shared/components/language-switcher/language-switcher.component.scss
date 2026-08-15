@@ -6,25 +6,23 @@
 .language-switcher__btn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  min-height: 36px;
-  padding: 0 var(--space-2);
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-surface);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-size: var(--font-size-md);
   cursor: pointer;
   line-height: 1;
 
   &--active {
     border-color: var(--color-brand-500);
-    color: var(--color-brand-600);
     background: var(--color-brand-50);
+    // El emoji de bandera no hereda `color`, así que el estado activo se
+    // distingue con el borde/fondo (arriba) y un leve "levantado" (abajo),
+    // no con un cambio de color de texto como en el resto de los botones.
+    box-shadow: var(--shadow-card);
   }
-}
-
-.language-switcher__code {
-  text-transform: uppercase;
 }

@@ -20,14 +20,24 @@ describe('LanguageSwitcherComponent', () => {
     fixture.detectChanges();
   });
 
-  it('pinta un botón por idioma', () => {
+  it('pinta un botón por idioma, solo con la bandera (sin texto)', () => {
     const buttons = fixture.debugElement.queryAll(By.css('.language-switcher__btn'));
     expect(buttons.length).toBe(3);
     expect(buttons.map((b) => b.nativeElement.textContent.trim())).toEqual([
-      '🇲🇽es',
-      '🇬🇧en',
-      '🇫🇷fr',
+      '🇲🇽',
+      '🇬🇧',
+      '🇫🇷',
     ]);
+  });
+
+  it('expone el nombre del idioma como aria-label y title (accesible sin texto visible)', () => {
+    const buttons = fixture.debugElement.queryAll(By.css('.language-switcher__btn'));
+    expect(buttons.map((b) => b.attributes['aria-label'])).toEqual([
+      'Español',
+      'English',
+      'Français',
+    ]);
+    expect(buttons.map((b) => b.attributes['title'])).toEqual(['Español', 'English', 'Français']);
   });
 
   it('marca como activo (aria-pressed) solo el idioma actual', () => {
