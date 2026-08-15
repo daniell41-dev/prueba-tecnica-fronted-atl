@@ -3,7 +3,8 @@
 Aplicación Angular que carga una lista de contactos desde un JSON que simula una API,
 permite agregarlos y editarlos con **Reactive Forms** validados, y guarda los cambios en
 **`localStorage`** (o los descarta con **Cancelar**). Cada contacto admite **uno o varios
-números de teléfono**.
+números de teléfono**. La interfaz completa se traduce al instante entre **español,
+inglés y francés**, y está pensada mobile-first.
 
 > ⏱️ **Tiempo invertido:** _completar antes de entregar_ — ver la nota al final de este
 > README.
@@ -17,6 +18,8 @@ números de teléfono**.
 - [Cómo correr el proyecto (paso a paso)](#cómo-correr-el-proyecto-paso-a-paso)
 - [Scripts disponibles](#scripts-disponibles)
 - [Cómo se simula la API](#cómo-se-simula-la-api)
+- [Idiomas (i18n)](#idiomas-i18n)
+- [Soporte mobile](#soporte-mobile)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Arquitectura](#arquitectura)
 - [Testing](#testing)
@@ -41,6 +44,10 @@ números de teléfono**.
 - **Detalle del contacto**, marcar/desmarcar favorito, eliminar con confirmación, y
   "restablecer datos de ejemplo" para volver al JSON semilla en cualquier momento.
 - **Persistencia real:** los cambios sobreviven a recargar la página (`localStorage`).
+- **Tres idiomas (ES/EN/FR)** con cambio instantáneo desde la barra superior, sin
+  recargar la página; el idioma elegido se recuerda entre sesiones.
+- **Mobile-first:** probado sin scroll horizontal ni truncamientos a 320/375/414/768px,
+  en los tres idiomas.
 
 ## Stack
 
@@ -48,7 +55,10 @@ números de teléfono**.
 - **TypeScript** estricto
 - **Reactive Forms** (`FormGroup` / `FormArray` tipados) — bonus 1
 - **RxJS** + `HttpClient` para el consumo de la API simulada
-- **SCSS** con design tokens propios (sin librería de UI), claro/oscuro automático
+- **SCSS** con design tokens propios (sin librería de UI), claro/oscuro automático,
+  responsive con un breakpoint compartido
+- **i18n propio en runtime** (signals + diccionarios TypeScript tipados) — sin
+  `@angular/localize` ni librerías de traducción externas
 - **Karma + Jasmine** para pruebas unitarias
 - **pnpm** como gestor de paquetes
 
@@ -133,6 +143,34 @@ pedir el JSON original.
 
 ---
 
+## Idiomas (i18n)
+
+Los tres botones de la barra superior (🇲🇽 ES / 🇬🇧 EN / 🇫🇷 FR) traducen **toda** la
+interfaz al instante — formularios, validaciones, diálogos, notificaciones — sin recargar
+la página. El idioma elegido se guarda en `localStorage` y se recupera al volver; si no
+hay nada guardado, se detecta el idioma del navegador.
+
+> **¿Por qué no `@angular/localize`** (el i18n "nativo" de Angular)? Porque es de
+> **tiempo de compilación**: genera un bundle distinto por idioma y cambiar de idioma
+> significa navegar a otra URL con recarga completa — además `ng serve` solo puede
+> levantar un idioma a la vez, así que con `pnpm start` los tres botones no
+> funcionarían. Detalle completo en
+> [`docs/03-decisiones-tecnicas.md`](docs/03-decisiones-tecnicas.md).
+
+Para agregar un texto nuevo: agregar la clave en `core/i18n/translations/es.ts` y en
+`en.ts`/`fr.ts` — si falta en cualquiera de los dos, **el build falla** (`en.ts`/`fr.ts`
+se tipan con `satisfies TranslationDictionary`, derivado de las claves de `es.ts`).
+
+## Soporte mobile
+
+Probado con capturas automatizadas (Playwright) en **320 / 375 / 414 / 768px**, en los
+tres idiomas — sin scroll horizontal ni texto truncado. El caso más exigente (fila de
+teléfono con etiqueta + número a 320px en francés, el idioma con textos más largos) usa
+un layout apilado por debajo de `380px` (`src/styles/_breakpoints.scss`) y pasa a tres
+columnas en pantallas más anchas.
+
+---
+
 ## Estructura del proyecto
 
 ```
@@ -144,11 +182,13 @@ src/app/
 │   ├── services/                   # StorageService, IdService, ContactStore, ToastService
 │   ├── guards/                     # unsavedChangesGuard
 │   ├── validators/                 # Validadores de Reactive Forms del dominio
-│   └── constants/
+│   ├── constants/
+│   └── i18n/                       # I18nService + diccionarios es/en/fr tipados
 │
 ├── shared/                        # Componentes y pipes reutilizables (presentacionales)
 │   ├── components/                 # avatar, contact-card, search-field, empty-state,
-│   │                               #   confirm-dialog, field-error, spinner, toast
+│   │                               #   confirm-dialog, field-error, spinner, toast,
+│   │                               #   language-switcher
 │   └── pipes/                      # initials, phoneFormat
 │
 ├── features/contacts/             # Páginas de la feature, lazy-loaded
@@ -174,9 +214,10 @@ token, Reactive Forms con `FormArray`, etc.) está en
 
 ## Testing
 
-Suite de **69 pruebas unitarias** (Jasmine) cubriendo el adaptador de datos, el
+Suite de **90 pruebas unitarias** (Jasmine) cubriendo el adaptador de datos, el
 repositorio sobre `localStorage`, el store de estado, los validadores de formulario, los
-pipes y los componentes/páginas clave (incluida la validación y el `FormArray` de
+pipes, el servicio de i18n (paridad de claves ES/EN/FR, persistencia, reactividad con
+`OnPush`) y los componentes/páginas clave (incluida la validación y el `FormArray` de
 teléfonos del formulario):
 
 ```bash

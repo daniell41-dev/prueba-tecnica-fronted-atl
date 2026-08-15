@@ -88,6 +88,51 @@ adelante, el patrón para agregarlo ya está documentado en `project-mobile-ioni
 
 ---
 
+## i18n en runtime con signals, no `@angular/localize`
+
+El enunciado pide "tres botones que traducen la app" (ES/EN/FR al instante). Angular sí
+trae i18n "nativo" (`@angular/localize`, atributos `i18n` + `$localize`), pero es de
+**tiempo de compilación**: `ng build --localize` genera un `dist/{es,en,fr}/` distinto
+por idioma, y cambiar de idioma en producción significa **navegar a otra URL con recarga
+completa de página**. Peor para este ejercicio: `ng serve` solo puede levantar **un
+idioma a la vez** (`ng serve --configuration=fr`), así que con `pnpm start` los tres
+botones simplemente no funcionarían para quien revise la prueba.
+
+Con eso descartado, la alternativa es estado en runtime. `I18nService` sigue el mismo
+patrón que `ContactStore` (signal privado + público de solo lectura), sin agregar
+ninguna dependencia nueva:
+
+- **`ngx-translate` u otra librería:** habría sido menos código propio, pero suma
+  dependencias externas y rompe la filosofía "cero dependencias de UI" ya aplicada al
+  resto del proyecto (SCSS propio, sin librería de componentes — ver más abajo).
+- **Diccionarios en TypeScript (`es.ts`/`en.ts`/`fr.ts`), no JSON:** `en.ts` y `fr.ts` se
+  tipan con `satisfies TranslationDictionary` (derivado de `keyof typeof ES`), así que si
+  a cualquiera de los dos le falta una clave —o le sobra una que no existe en
+  español— **no compila**. Con JSON esa garantía no existe: una clave olvidada en inglés
+  aparecería en producción como texto en blanco o como la clave cruda, no como un error
+  de build. `translations.spec.ts` repite la verificación en runtime como red de
+  seguridad doble (además detecta valores vacíos, algo que TypeScript no puede ver).
+- **Por qué `t()` funciona con `OnPush` sin código extra:** Angular registra una vista
+  como dependiente de cualquier signal que lea durante el renderizado — incluida una
+  leída indirectamente a través de una llamada a método como `i18n.t(...)`. Cambiar el
+  signal `locale` re-renderiza automáticamente cualquier plantilla que llamó a `t()`, sin
+  `ChangeDetectorRef` ni `markForCheck()` manual. Verificado explícitamente en
+  `core/i18n/i18n-reactivity.spec.ts`.
+
+### Excepción documentada a "shared/ sin servicios de core"
+
+La regla de `docs/02-arquitectura-y-buenas-practicas.md` prohíbe que `shared/components`
+inyecte servicios de `core` (mantiene los componentes presentacionales puros). Se hizo
+una excepción explícita para `I18nService`: traducir texto es infraestructura de UI
+transversal, no estado de negocio — el mismo argumento por el que nadie cuestiona que un
+componente presentacional use `DatePipe` o `CurrencyPipe`. La alternativa (pasar cada
+string traducido como `@Input()` desde cada página) habría multiplicado el
+prop-drilling sin aportar ningún beneficio real de desacoplamiento, porque el "acoplamiento"
+real que la regla busca evitar es con la *entidad contacto* (`ContactStore`,
+repositorios), no con el idioma de la interfaz.
+
+---
+
 ## Sin librería de componentes UI
 
 Todo el UI (`shared/components/*`) es SCSS propio sobre tokens, sin Angular Material ni
@@ -95,3 +140,19 @@ Ionic. Mantiene el bundle pequeño y hace explícito cada patrón de accesibilid
 targets de 44px, `aria-*`, `role="alertdialog"`, backdrop como `<button>` enfocable en
 vez de un `<div>` con solo `click`) en lugar de depender de que la librería ya lo
 resuelva.
+
+---
+
+## Un solo breakpoint compartido, no media queries repetidas por componente
+
+`src/styles/_breakpoints.scss` expone `$mobile-compact: 380px` vía
+`stylePreprocessorOptions.includePaths` en `angular.json` (`@use 'breakpoints' as bp;`
+en cualquier `.scss`, sin rutas relativas). Antes de esto había un `420px` suelto en
+`contact-form.page.scss`; con un idioma como el francés (~30% más largo que el español
+en promedio) y una fila de teléfono a tres columnas (`112px 1fr auto`), el ancho
+disponible para el número quedaba tan justo a 320px que el `<select>` de tipo llegaba a
+truncar "Domicilio". La corrección: por debajo de `$mobile-compact` la etiqueta ocupa la
+fila completa y el número comparte fila solo con el botón de quitar; de
+`$mobile-compact` en adelante vuelve a las tres columnas en línea. Verificado con
+capturas de Playwright a 320/375/414/768px en los tres idiomas (el peor caso, francés,
+sin overflow horizontal ni truncamiento).
