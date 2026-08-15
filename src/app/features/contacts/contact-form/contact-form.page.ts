@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } fro
 import { FormArray, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
+import { I18nService } from '../../../core/i18n/i18n.service';
 import { Contact, ContactDraft, PhoneLabel } from '../../../core/models/contact.model';
 import { ContactStore } from '../../../core/services/contact-store.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -45,6 +46,7 @@ export class ContactFormPage implements OnInit, HasUnsavedChanges {
   private readonly store = inject(ContactStore);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(I18nService);
 
   readonly saving = signal(false);
   readonly confirmingDiscard = signal(false);
@@ -103,10 +105,10 @@ export class ContactFormPage implements OnInit, HasUnsavedChanges {
       const id = this.id();
       const saved = id ? await this.store.update(id, draft) : await this.store.create(draft);
       this.submitted = true;
-      this.toast.success(id ? 'Contacto actualizado.' : 'Contacto agregado.');
+      this.toast.success(this.i18n.t(id ? 'form.toastUpdated' : 'form.toastCreated'));
       await this.router.navigate(['/contacts', saved.id]);
     } catch {
-      this.toast.error('No se pudo guardar el contacto.');
+      this.toast.error(this.i18n.t('form.toastError'));
     } finally {
       this.saving.set(false);
     }

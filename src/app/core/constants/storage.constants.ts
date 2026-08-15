@@ -7,4 +7,6 @@
 export const STORAGE_KEYS = {
   /** Lista completa de contactos persistida tras el primer arranque. */
   contacts: 'contacts-app.contacts',
+  /** Idioma elegido con el selector (ver `core/i18n`). */
+  locale: 'contacts-app.locale',
 } as const;

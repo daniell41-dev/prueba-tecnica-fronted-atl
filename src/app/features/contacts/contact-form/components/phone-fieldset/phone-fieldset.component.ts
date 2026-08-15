@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { FormArray, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { PHONE_LABEL_KEYS, PHONE_LABELS } from '../../../../../core/models/contact.model';
+import { I18nService } from '../../../../../core/i18n/i18n.service';
+import { PHONE_LABEL_KEYS, PHONE_LABEL_TRANSLATION_KEYS } from '../../../../../core/models/contact.model';
 import { mxPhoneValidator } from '../../../../../core/validators/contact.validators';
 import { FieldErrorComponent } from '../../../../../shared/components/field-error/field-error.component';
 import type { PhoneGroup } from '../../contact-form.types';
@@ -12,7 +13,9 @@ import type { PhoneGroup } from '../../contact-form.types';
  *
  * Recibe el `FormArray` del formulario padre y lo edita en el sitio
  * (`push`/`removeAt`): como es la misma instancia, el padre ve los cambios sin
- * necesidad de `@Output()` adicionales.
+ * necesidad de `@Output()` adicionales. Vive dentro de `contact-form/`, no en
+ * `shared/`, así que puede inyectar servicios de `core` sin romper la regla
+ * de componentes presentacionales puros.
  */
 @Component({
   selector: 'app-phone-fieldset',
@@ -25,9 +28,10 @@ export class PhoneFieldsetComponent {
   readonly array = input.required<FormArray<PhoneGroup>>();
 
   private readonly fb = inject(NonNullableFormBuilder);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly labelOptions = PHONE_LABEL_KEYS;
-  protected readonly labelText = PHONE_LABELS;
+  protected readonly labelTranslationKeys = PHONE_LABEL_TRANSLATION_KEYS;
 
   protected addPhone(): void {
     this.array().push(this.createPhoneGroup());

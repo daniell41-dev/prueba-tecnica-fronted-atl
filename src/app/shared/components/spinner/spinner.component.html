@@ -1,4 +1,4 @@
 <div class="spinner-wrap" role="status" aria-live="polite">
   <span class="spinner" aria-hidden="true"></span>
-  <span class="spinner-label">{{ label() }}</span>
+  <span class="spinner-label">{{ label() ?? i18n.t('detail.loading') }}</span>
 </div>

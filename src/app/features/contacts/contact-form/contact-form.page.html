@@ -1,15 +1,17 @@
 @if (notFound()) {
-  <p class="form-hint">No se encontró el contacto a editar.</p>
-  <a routerLink="/contacts" class="btn btn--ghost">Volver a la lista</a>
+  <p class="form-hint">{{ i18n.t('form.notFound') }}</p>
+  <a routerLink="/contacts" class="btn btn--ghost">{{ i18n.t('detail.backToList') }}</a>
 } @else {
   <header class="page-header">
-    <h1 class="page-header__title">{{ isEditMode ? 'Editar contacto' : 'Nuevo contacto' }}</h1>
+    <h1 class="page-header__title">
+      {{ isEditMode ? i18n.t('form.titleEdit') : i18n.t('form.titleNew') }}
+    </h1>
   </header>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <div class="field-row">
       <label class="field">
-        <span class="field__label">Nombre</span>
+        <span class="field__label">{{ i18n.t('form.firstName') }}</span>
         <input
           type="text"
           formControlName="firstName"
@@ -22,7 +24,7 @@
       </label>
 
       <label class="field">
-        <span class="field__label">Apellido</span>
+        <span class="field__label">{{ i18n.t('form.lastName') }}</span>
         <input
           type="text"
           formControlName="lastName"
@@ -36,7 +38,7 @@
     </div>
 
     <label class="field">
-      <span class="field__label">Correo (opcional)</span>
+      <span class="field__label">{{ i18n.t('form.email') }}</span>
       <input
         type="email"
         formControlName="email"
@@ -49,7 +51,7 @@
     </label>
 
     <label class="field">
-      <span class="field__label">Empresa (opcional)</span>
+      <span class="field__label">{{ i18n.t('form.company') }}</span>
       <input type="text" formControlName="company" autocomplete="organization" />
       @if (form.controls.company.touched) {
         <app-field-error [errors]="form.controls.company.errors" />
@@ -57,7 +59,7 @@
     </label>
 
     <fieldset class="field">
-      <legend class="field__label">Teléfonos</legend>
+      <legend class="field__label">{{ i18n.t('form.phonesLegend') }}</legend>
       <app-phone-fieldset [array]="phones" />
       @if (phones.touched && phones.hasError('minArrayLength')) {
         <app-field-error [errors]="phones.errors" />
@@ -65,18 +67,18 @@
     </fieldset>
 
     <div class="page-actions">
-      <button type="button" class="btn btn--ghost" (click)="onCancel()">Cancelar</button>
+      <button type="button" class="btn btn--ghost" (click)="onCancel()">{{ i18n.t('form.cancel') }}</button>
       <button type="submit" class="btn btn--primary" [disabled]="saving()">
-        {{ saving() ? 'Guardando…' : 'Guardar' }}
+        {{ saving() ? i18n.t('form.saving') : i18n.t('form.save') }}
       </button>
     </div>
   </form>
 
   <app-confirm-dialog
     [open]="confirmingDiscard()"
-    title="¿Descartar cambios?"
-    message="Perderás los cambios que no has guardado."
-    confirmLabel="Descartar"
+    [title]="i18n.t('form.discardTitle')"
+    [message]="i18n.t('form.discardMessage')"
+    [confirmLabel]="i18n.t('form.discardConfirm')"
     [danger]="true"
     (confirmed)="confirmDiscard()"
     (cancelled)="cancelDiscard()"

@@ -19,11 +19,14 @@ src/app/
 │   ├── services/               # StorageService, IdService, ContactStore, ToastService
 │   ├── guards/                 # unsavedChangesGuard (CanDeactivate)
 │   ├── validators/             # Validadores de Reactive Forms del dominio "contacto"
-│   └── constants/              # Claves de localStorage, etc.
+│   ├── constants/              # Claves de localStorage, etc.
+│   └── i18n/                   # Traducción ES/EN/FR en runtime (I18nService + signals)
+│       └── translations/       # Diccionarios tipados es.ts / en.ts / fr.ts
 │
 ├── shared/                    # Reutilizable y SIN estado de negocio (presentacional)
 │   ├── components/            # avatar, contact-card, search-field, empty-state,
-│   │                          # confirm-dialog, field-error, spinner, toast
+│   │                          # confirm-dialog, field-error, spinner, toast,
+│   │                          # language-switcher
 │   └── pipes/                 # initials, phoneFormat
 │
 ├── features/contacts/         # Una carpeta por feature; páginas lazy-loaded
@@ -32,7 +35,8 @@ src/app/
 │   └── contact-form/           # Alta y edición (mismo formulario para ambos modos)
 │       └── components/phone-fieldset/  # Sub-formulario "uno o varios teléfonos"
 │
-├── app.ts · app.config.ts · app.routes.ts
+├── app.ts · app.config.ts · app.routes.ts  # app.ts cablea la barra global
+│                                            # (título + language-switcher) y el toast
 ```
 
 ### Reglas de dependencia (bajo acoplamiento)
@@ -44,8 +48,14 @@ features  ──►  shared  ──►  (Angular)
 ```
 
 - `features` puede usar `core` y `shared`.
-- `shared` **no** depende de `features` ni de `core/services` (es presentacional y
-  genérico: recibe datos por `input()` y emite por `output()`).
+- `shared` **no** depende de `features` ni de `core/services` de negocio (`ContactStore`,
+  repositorios, `ToastService`...): es presentacional y genérico, recibe datos por
+  `input()` y emite por `output()`.
+  - **Excepción documentada:** `shared/components` sí puede inyectar `I18nService`.
+    Traducir texto es infraestructura de UI transversal (como usar `DatePipe` o
+    `CurrencyPipe`), no estado de negocio — inyectarlo no acopla el componente a
+    `features/contacts`. Lo que sigue prohibido es inyectar `ContactStore` o cualquier
+    servicio que conozca la entidad "contacto".
 - `core` no depende de `features`.
 - No hay features hermanas que se importen entre sí (aquí solo existe `contacts`, pero la
   regla queda documentada para cuando se agregue una segunda).
@@ -77,6 +87,7 @@ public/data/contacts.json  (DTO snake_case, simula el backend)
 | DTO / adapter | `*.dto.ts` / `*.adapter.ts` | `contact.dto.ts` |
 | Guard | `*.guard.ts` | `unsaved-changes.guard.ts` |
 | Pipe | `*.pipe.ts` | `phone-format.pipe.ts` |
+| Clave de traducción | `namespace.nombre` (dot-case) | `'form.save'`, `'errors.required'` |
 
 - **Archivos y carpetas:** `kebab-case`.
 - **Clases:** `PascalCase`. **Variables/métodos:** `camelCase`.
@@ -107,6 +118,32 @@ public/data/contacts.json  (DTO snake_case, simula el backend)
 - **Componentes (`shared/*`) = presentacionales:** reciben datos por `input()`, emiten
   eventos por `output()`. **Sin** acceso a servicios de datos. Reutilizables y
   testeables de forma aislada (ver `contact-card.component.spec.ts`).
+
+---
+
+## 🌐 Internacionalización (ES/EN/FR)
+
+- **Ningún texto visible se hardcodea en plantillas ni en `.ts`.** Todo pasa por
+  `I18nService.t('namespace.clave', params?)`; el texto en español vive únicamente en
+  `core/i18n/translations/es.ts` (fuente de verdad de las claves).
+- **`en.ts`/`fr.ts` se tipan con `satisfies TranslationDictionary`** (derivado de
+  `keyof typeof ES`): a un diccionario le falta o le sobra una clave y **no compila**.
+  `translations.spec.ts` repite la misma verificación en runtime (además de detectar
+  valores vacíos), como red de seguridad doble.
+- **Reactividad con signals, no con recarga de página:** `I18nService.locale` es un
+  signal; `t()` lo lee, así que cualquier plantilla que llama a `t()` se re-renderiza al
+  cambiar de idioma — **incluso en componentes `OnPush`**, porque Angular registra la
+  vista como dependiente de esa signal en cuanto la lee durante el render (ver
+  `i18n-reactivity.spec.ts`). No hace falta `ChangeDetectorRef` ni `markForCheck()`
+  manual.
+- **Persistencia y detección:** el idioma elegido se guarda vía `StorageService`
+  (reutilizado, no un storage propio) y se recupera al recargar; si no hay nada
+  guardado, se detecta `navigator.language`; si tampoco coincide con ES/EN/FR, cae a
+  español.
+- Por qué no `@angular/localize` (el i18n "nativo" de Angular): es de **tiempo de
+  compilación** (un bundle por idioma, cambio de idioma = navegar a otra URL con recarga
+  completa) — incompatible con "tres botones que traducen al instante". Detalle completo
+  en `docs/03-decisiones-tecnicas.md`.
 
 ---
 
@@ -141,10 +178,10 @@ public/data/contacts.json  (DTO snake_case, simula el backend)
 
 - **DRY** — un solo `ContactFormPage` sirve para alta y edición; validadores y pipes
   compartidos en `core/validators` y `shared/pipes`.
-- **KISS** — estado con signals planos, sin librerías de estado externas.
-- **YAGNI** — sin backend real, sin i18n completo, sin selector de tema manual (el
-  claro/oscuro se resuelve solo con `prefers-color-scheme`): nada que el ejercicio no
-  pida.
+- **KISS** — estado con signals planos, sin librerías de estado externas; i18n con un
+  servicio propio (ver `docs/03-decisiones-tecnicas.md`) en vez de `@angular/localize`.
+- **YAGNI** — sin backend real, sin selector de tema manual (el claro/oscuro se resuelve
+  solo con `prefers-color-scheme`): nada que el ejercicio no pida.
 
 ---
 
@@ -158,9 +195,16 @@ public/data/contacts.json  (DTO snake_case, simula el backend)
   - `core/services/storage.service.spec.ts` — wrapper de `localStorage`.
   - `core/validators/contact.validators.spec.ts` — nombre, teléfono MX, duplicados,
     email único, mínimo de teléfonos.
-  - `shared/pipes/*.spec.ts`, `shared/components/contact-card/*.spec.ts`.
+  - `shared/pipes/*.spec.ts`, `shared/components/contact-card/*.spec.ts`,
+    `shared/components/language-switcher/*.spec.ts`.
   - `features/contacts/contact-form/contact-form.page.spec.ts` — validación,
     `FormArray` de teléfonos, alta, edición, cancelar con confirmación.
+  - `core/i18n/i18n.service.spec.ts` — idioma por defecto, detección del navegador,
+    persistencia, interpolación de parámetros.
+  - `core/i18n/translations.spec.ts` — paridad de claves y ausencia de valores vacíos
+    entre `es`/`en`/`fr`.
+  - `core/i18n/i18n-reactivity.spec.ts` — un componente `OnPush` se actualiza al cambiar
+    de idioma sin tocar sus `@Input()`.
 - `pnpm test` (con navegador) en local; `pnpm test:ci` (Chrome headless) en CI.
 
 ---
@@ -171,6 +215,8 @@ public/data/contacts.json  (DTO snake_case, simula el backend)
 - [ ] Componentes standalone; `OnPush`; lazy loading si es página.
 - [ ] Sin errores de `pnpm lint` ni de `pnpm build`.
 - [ ] Lógica de negocio en `core`; UI reutilizable en `shared`.
+- [ ] Ningún texto visible nuevo hardcodeado: toda clave se agrega a **los tres**
+      diccionarios (`es.ts`, `en.ts`, `fr.ts`).
 - [ ] Tests unitarios de la lógica nueva.
 - [ ] Sin `console.log` de debug ni código muerto.
 - [ ] Commit con Conventional Commits.

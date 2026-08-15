@@ -1,0 +1,4 @@
+// Breakpoints compartidos. Se importan con `@use 'breakpoints' as bp;` gracias
+// a `stylePreprocessorOptions.includePaths` en `angular.json` (evita repetir
+// literales mágicos de ancho por componente).
+$mobile-compact: 380px;

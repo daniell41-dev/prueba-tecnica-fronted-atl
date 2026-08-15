@@ -1,9 +1,26 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
 
+import { I18nService } from '../i18n/i18n.service';
+import { Locale } from '../i18n/locale.model';
+import { ES } from '../i18n/translations/es';
 import { Contact, ContactDraft } from '../models/contact.model';
 import { CONTACT_REPOSITORY, ContactRepository } from '../repositories/contact.repository';
 import { ContactStore } from './contact-store.service';
+
+/**
+ * `ContactStore` no debe depender del idioma real del navegador en sus
+ * propios tests (eso ya lo cubren `i18n.service.spec.ts` y
+ * `translations.spec.ts`): un `I18nService` fijo en español mantiene esta
+ * suite determinista sin importar dónde se ejecute.
+ */
+function fakeI18nService(): Pick<I18nService, 'locale' | 't'> {
+  return {
+    locale: signal<Locale>('es').asReadonly(),
+    t: (key) => ES[key],
+  };
+}
 
 function contact(overrides: Partial<Contact>): Contact {
   return {
@@ -43,7 +60,10 @@ describe('ContactStore', () => {
     repo.getAll.and.returnValue(of(seed));
 
     TestBed.configureTestingModule({
-      providers: [{ provide: CONTACT_REPOSITORY, useValue: repo }],
+      providers: [
+        { provide: CONTACT_REPOSITORY, useValue: repo },
+        { provide: I18nService, useValue: fakeI18nService() },
+      ],
     });
     store = TestBed.inject(ContactStore);
   });

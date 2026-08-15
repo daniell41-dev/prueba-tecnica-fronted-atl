@@ -4,7 +4,7 @@
     <button
       type="button"
       class="toast__close"
-      aria-label="Cerrar notificación"
+      [attr.aria-label]="i18n.t('common.closeToast')"
       (click)="dismissed.emit()"
     >
       ✕

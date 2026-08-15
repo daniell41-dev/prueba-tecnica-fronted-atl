@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 
+import { I18nService } from '../../../core/i18n/i18n.service';
 import { Contact, fullName } from '../../../core/models/contact.model';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { PhoneFormatPipe } from '../../pipes/phone-format.pipe';
@@ -21,6 +22,7 @@ export class ContactCardComponent {
   readonly contact = input.required<Contact>();
   readonly favoriteToggled = output<void>();
 
+  protected readonly i18n = inject(I18nService);
   protected readonly fullName = fullName;
 
   protected primaryPhone(contact: Contact): string | null {

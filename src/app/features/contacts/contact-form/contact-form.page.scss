@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
   max-width: 480px;
@@ -103,7 +105,7 @@ form {
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: bp.$mobile-compact) {
   .field-row {
     grid-template-columns: 1fr;
   }
