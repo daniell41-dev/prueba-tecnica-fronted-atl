@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { finalize, Observable } from 'rxjs';
 
+import { I18nService } from '../i18n/i18n.service';
 import { Contact, ContactDraft, fullName } from '../models/contact.model';
 import { CONTACT_REPOSITORY } from '../repositories/contact.repository';
 
@@ -18,6 +19,7 @@ export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'error';
 @Injectable({ providedIn: 'root' })
 export class ContactStore {
   private readonly repository = inject(CONTACT_REPOSITORY);
+  private readonly i18n = inject(I18nService);
 
   private readonly _contacts = signal<Contact[]>([]);
   private readonly _status = signal<LoadStatus>('idle');
@@ -31,10 +33,15 @@ export class ContactStore {
 
   readonly loading = computed(() => this._status() === 'loading');
 
-  /** Lista ordenada (favoritos primero, luego alfabético) y filtrada por `query`. */
+  /**
+   * Lista ordenada (favoritos primero, luego alfabético) y filtrada por
+   * `query`. Se recalcula también al cambiar de idioma: el orden alfabético
+   * depende del locale activo (`localeCompare`), no de uno fijo.
+   */
   readonly filteredContacts = computed(() => {
     const term = this._query().trim().toLowerCase();
-    const sorted = [...this._contacts()].sort(compareContacts);
+    const locale = this.i18n.locale();
+    const sorted = [...this._contacts()].sort((a, b) => compareContacts(a, b, locale));
     if (!term) return sorted;
     return sorted.filter((contact) => matchesQuery(contact, term));
   });
@@ -73,7 +80,7 @@ export class ContactStore {
         },
         error: () => {
           this._status.set('error');
-          this._error.set('No se pudo cargar la lista de contactos.');
+          this._error.set(this.i18n.t('errors.loadContacts'));
           resolve([]);
         },
       });
@@ -118,9 +125,9 @@ export class ContactStore {
   }
 }
 
-function compareContacts(a: Contact, b: Contact): number {
+function compareContacts(a: Contact, b: Contact, locale: string): number {
   if (a.favorite !== b.favorite) return a.favorite ? -1 : 1;
-  return fullName(a).localeCompare(fullName(b), 'es');
+  return fullName(a).localeCompare(fullName(b), locale);
 }
 
 function matchesQuery(contact: Contact, term: string): boolean {

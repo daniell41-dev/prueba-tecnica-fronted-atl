@@ -1,3 +1,5 @@
+import type { TranslationKey } from '../i18n/translations/es';
+
 /**
  * Modelo de dominio de un contacto.
  *
@@ -10,15 +12,18 @@
 /** Etiquetas soportadas para un teléfono. Se guardan por clave, no por texto. */
 export type PhoneLabel = 'mobile' | 'home' | 'work' | 'other';
 
-/** Texto visible (es-MX) de cada etiqueta. La UI nunca hardcodea estos strings. */
-export const PHONE_LABELS: Readonly<Record<PhoneLabel, string>> = {
-  mobile: 'Móvil',
-  home: 'Casa',
-  work: 'Trabajo',
-  other: 'Otro',
+/**
+ * Clave de traducción para cada etiqueta (nunca el texto): el modelo de
+ * dominio no debe contener copy de UI, solo el mapeo hacia `I18nService.t()`.
+ */
+export const PHONE_LABEL_TRANSLATION_KEYS: Readonly<Record<PhoneLabel, TranslationKey>> = {
+  mobile: 'phone.mobile',
+  home: 'phone.home',
+  work: 'phone.work',
+  other: 'phone.other',
 };
 
-export const PHONE_LABEL_KEYS = Object.keys(PHONE_LABELS) as readonly PhoneLabel[];
+export const PHONE_LABEL_KEYS = Object.keys(PHONE_LABEL_TRANSLATION_KEYS) as readonly PhoneLabel[];
 
 /** Un teléfono del contacto. Un contacto puede tener uno o varios (bonus 2). */
 export interface Phone {

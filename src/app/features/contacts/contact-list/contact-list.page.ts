@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { I18nService } from '../../../core/i18n/i18n.service';
 import { Contact } from '../../../core/models/contact.model';
 import { ContactStore } from '../../../core/services/contact-store.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -25,6 +26,7 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
 })
 export class ContactListPage implements OnInit {
   protected readonly store = inject(ContactStore);
+  protected readonly i18n = inject(I18nService);
   private readonly toast = inject(ToastService);
 
   ngOnInit(): void {
@@ -39,7 +41,7 @@ export class ContactListPage implements OnInit {
     try {
       await this.store.toggleFavorite(contact);
     } catch {
-      this.toast.error('No se pudo actualizar el favorito.');
+      this.toast.error(this.i18n.t('common.favoriteUpdateError'));
     }
   }
 
@@ -49,6 +51,14 @@ export class ContactListPage implements OnInit {
 
   protected onResetSeed(): void {
     this.store.resetToSeed();
-    this.toast.info('Se restablecieron los datos de ejemplo.');
+    this.toast.info(this.i18n.t('list.resetSeedToast'));
+  }
+
+  /** "N de M contacto(s)", con la forma singular/plural correcta por idioma. */
+  protected countLabel(): string {
+    const visible = this.store.visibleCount();
+    const total = this.store.totalCount();
+    const key = total === 1 ? 'list.countOne' : 'list.countOther';
+    return this.i18n.t(key, { visible, total });
   }
 }

@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
-import { fullName } from '../../../core/models/contact.model';
+import { I18nService } from '../../../core/i18n/i18n.service';
+import { fullName, PHONE_LABEL_TRANSLATION_KEYS } from '../../../core/models/contact.model';
 import { ContactStore } from '../../../core/services/contact-store.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { PHONE_LABELS } from '../../../core/models/contact.model';
 import { PhoneFormatPipe } from '../../../shared/pipes/phone-format.pipe';
 
 /**
@@ -27,11 +27,12 @@ export class ContactDetailPage implements OnInit {
   readonly id = input.required<string>();
 
   protected readonly store = inject(ContactStore);
+  protected readonly i18n = inject(I18nService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
   protected readonly fullName = fullName;
-  protected readonly phoneLabels = PHONE_LABELS;
+  protected readonly phoneLabelTranslationKeys = PHONE_LABEL_TRANSLATION_KEYS;
   protected readonly confirmingDelete = signal(false);
 
   ngOnInit(): void {
@@ -51,7 +52,7 @@ export class ContactDetailPage implements OnInit {
     try {
       await this.store.toggleFavorite(contact);
     } catch {
-      this.toast.error('No se pudo actualizar el favorito.');
+      this.toast.error(this.i18n.t('common.favoriteUpdateError'));
     }
   }
 
@@ -73,10 +74,10 @@ export class ContactDetailPage implements OnInit {
     if (!contact) return;
     try {
       await this.store.remove(contact.id);
-      this.toast.success('Contacto eliminado.');
+      this.toast.success(this.i18n.t('detail.deleteToastSuccess'));
       this.router.navigateByUrl('/contacts');
     } catch {
-      this.toast.error('No se pudo eliminar el contacto.');
+      this.toast.error(this.i18n.t('detail.deleteToastError'));
     }
   }
 }

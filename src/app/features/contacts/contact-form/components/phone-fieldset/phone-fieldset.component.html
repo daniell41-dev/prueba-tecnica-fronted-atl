@@ -1,9 +1,13 @@
 <div class="phone-fieldset">
   @for (phone of array().controls; track $index) {
     <div class="phone-row" [formGroup]="phone">
-      <select class="phone-row__label" formControlName="label" aria-label="Tipo de teléfono">
+      <select
+        class="phone-row__label"
+        formControlName="label"
+        [attr.aria-label]="i18n.t('phone.typeAriaLabel')"
+      >
         @for (key of labelOptions; track key) {
-          <option [value]="key">{{ labelText[key] }}</option>
+          <option [value]="key">{{ i18n.t(labelTranslationKeys[key]) }}</option>
         }
       </select>
 
@@ -11,7 +15,7 @@
         <input
           type="tel"
           formControlName="number"
-          placeholder="10 dígitos"
+          [placeholder]="i18n.t('phone.numberPlaceholder')"
           [attr.aria-invalid]="phone.get('number')?.invalid && phone.get('number')?.touched"
         />
         @if (phone.get('number')?.touched) {
@@ -23,7 +27,7 @@
         type="button"
         class="phone-row__remove"
         [disabled]="!canRemove()"
-        [attr.aria-label]="'Quitar teléfono ' + ($index + 1)"
+        [attr.aria-label]="i18n.t('phone.remove', { n: $index + 1 })"
         (click)="removePhone($index)"
       >
         ✕
@@ -31,5 +35,7 @@
     </div>
   }
 
-  <button type="button" class="phone-fieldset__add" (click)="addPhone()">+ Agregar teléfono</button>
+  <button type="button" class="phone-fieldset__add" (click)="addPhone()">
+    {{ i18n.t('phone.add') }}
+  </button>
 </div>

@@ -1,6 +1,6 @@
 <header class="page-header">
-  <h1 class="page-header__title">Contactos</h1>
-  <a routerLink="/contacts/new" class="btn btn--primary">+ Nuevo</a>
+  <h1 class="page-header__title">{{ i18n.t('list.title') }}</h1>
+  <a routerLink="/contacts/new" class="btn btn--primary">{{ i18n.t('list.newButton') }}</a>
 </header>
 
 <div class="page-toolbar">
@@ -9,15 +9,15 @@
 
 @switch (store.status()) {
   @case ('loading') {
-    <app-spinner label="Cargando contactos…" />
+    <app-spinner [label]="i18n.t('list.loading')" />
   }
 
   @case ('error') {
     <app-empty-state
       icon="⚠️"
-      title="No se pudo cargar la lista"
+      [title]="i18n.t('list.errorTitle')"
       [description]="store.error()"
-      actionLabel="Reintentar"
+      [actionLabel]="i18n.t('list.retry')"
       (action)="onRetry()"
     />
   }
@@ -26,17 +26,19 @@
     @if (store.totalCount() === 0) {
       <app-empty-state
         icon="👤"
-        title="Aún no tienes contactos"
-        description="Agrega el primero para empezar tu agenda."
-        actionLabel="Restablecer datos de ejemplo"
+        [title]="i18n.t('list.emptyTitle')"
+        [description]="i18n.t('list.emptyDescription')"
+        [actionLabel]="i18n.t('list.resetSeed')"
         (action)="onResetSeed()"
       />
     } @else if (store.visibleCount() === 0) {
-      <app-empty-state icon="🔍" title="Sin resultados" description="Prueba con otro término de búsqueda." />
+      <app-empty-state
+        icon="🔍"
+        [title]="i18n.t('list.noResultsTitle')"
+        [description]="i18n.t('list.noResultsDescription')"
+      />
     } @else {
-      <p class="page-toolbar__count">
-        {{ store.visibleCount() }} de {{ store.totalCount() }} contacto{{ store.totalCount() === 1 ? '' : 's' }}
-      </p>
+      <p class="page-toolbar__count">{{ countLabel() }}</p>
 
       <ul class="contact-list">
         @for (contact of store.filteredContacts(); track contact.id) {

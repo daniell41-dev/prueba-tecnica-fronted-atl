@@ -1,2 +1,12 @@
+<header class="app-bar">
+  <span class="app-bar__title">{{ i18n.t('app.title') }}</span>
+  <app-language-switcher
+    [options]="languageOptions()"
+    [active]="i18n.locale()"
+    [switchAriaLabel]="i18n.t('app.language.switchAriaLabel')"
+    (localeChange)="onLocaleChange($event)"
+  />
+</header>
+
 <router-outlet />
 <app-toast [toast]="toast.current()" (dismissed)="toast.dismiss()" />

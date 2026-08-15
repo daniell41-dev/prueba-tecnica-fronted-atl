@@ -3,7 +3,7 @@
     <button
       type="button"
       class="backdrop__overlay"
-      aria-label="Cerrar diálogo"
+      [attr.aria-label]="i18n.t('common.closeDialog')"
       (click)="cancelled.emit()"
     ></button>
     <div
@@ -18,7 +18,7 @@
       }
       <div class="dialog__actions">
         <button type="button" class="btn btn--ghost" (click)="cancelled.emit()">
-          {{ cancelLabel() }}
+          {{ cancelLabel() ?? i18n.t('form.cancel') }}
         </button>
         <button
           type="button"
@@ -27,7 +27,7 @@
           [class.btn--primary]="!danger()"
           (click)="confirmed.emit()"
         >
-          {{ confirmLabel() }}
+          {{ confirmLabel() ?? i18n.t('common.confirm') }}
         </button>
       </div>
     </div>

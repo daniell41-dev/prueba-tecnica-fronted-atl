@@ -14,7 +14,7 @@
   class="contact-card__favorite"
   [class.contact-card__favorite--active]="contact().favorite"
   [attr.aria-pressed]="contact().favorite"
-  [attr.aria-label]="contact().favorite ? 'Quitar de favoritos' : 'Marcar como favorito'"
+  [attr.aria-label]="contact().favorite ? i18n.t('common.removeFavorite') : i18n.t('common.addFavorite')"
   (click)="onToggleFavorite($event)"
 >
   {{ contact().favorite ? '★' : '☆' }}

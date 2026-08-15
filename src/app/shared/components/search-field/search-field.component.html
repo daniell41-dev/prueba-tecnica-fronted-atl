@@ -4,15 +4,15 @@
     type="search"
     class="search-field__input"
     [value]="value()"
-    [placeholder]="placeholder()"
+    [placeholder]="placeholder() ?? i18n.t('list.searchPlaceholder')"
     (input)="onInput($event)"
-    aria-label="Buscar contacto"
+    [attr.aria-label]="i18n.t('common.searchAriaLabel')"
   />
   @if (value()) {
     <button
       type="button"
       class="search-field__clear"
-      aria-label="Limpiar búsqueda"
+      [attr.aria-label]="i18n.t('common.clearSearch')"
       (click)="clear()"
     >
       ✕

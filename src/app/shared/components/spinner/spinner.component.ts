@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+
+import { I18nService } from '../../../core/i18n/i18n.service';
 
 /** Indicador de carga circular, accesible vía `role="status"`. */
 @Component({
@@ -8,5 +10,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpinnerComponent {
-  readonly label = input('Cargando…');
+  readonly label = input<string | null>(null);
+
+  protected readonly i18n = inject(I18nService);
 }

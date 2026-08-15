@@ -41,6 +41,10 @@ del sistema, exporta `CHROME_BIN` apuntando a él antes de correr el comando.
 - **Arquitectura y estilo:** `docs/02-arquitectura-y-buenas-practicas.md` (estructura
   `core/ shared/ features/`, standalone + lazy loading, SOLID, DRY/KISS/YAGNI).
 - **Decisiones técnicas:** `docs/03-decisiones-tecnicas.md`.
+- **i18n (ES/EN/FR):** ⚠️ ningún texto visible se hardcodea. Toda clave nueva se agrega a
+  **los tres** diccionarios (`core/i18n/translations/{es,en,fr}.ts`) — `en.ts`/`fr.ts`
+  no compilan si falta o sobra una clave respecto a `es.ts`. Detalle en
+  `docs/02-arquitectura-y-buenas-practicas.md` (sección "Internacionalización").
 
 ## Documentación del repo
 
