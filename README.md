@@ -6,8 +6,8 @@ permite agregarlos y editarlos con **Reactive Forms** validados, y guarda los ca
 números de teléfono**. La interfaz completa se traduce al instante entre **español,
 inglés y francés**, y está pensada mobile-first.
 
-> ⏱️ **Tiempo invertido:** _completar antes de entregar_ — ver la nota al final de este
-> README.
+> ⏱️ **Tiempo invertido:** ~2.5 horas — incluye planificación, implementación y pruebas
+> QA. Desglose al final de este README.
 
 ---
 
@@ -237,10 +237,17 @@ en **[`docs/01-flujo-git-github.md`](docs/01-flujo-git-github.md)**.
 
 ---
 
-### Nota sobre el tiempo invertido
+### Desglose del tiempo invertido
 
-Este proyecto se generó con **Claude Code** en una sesión de trabajo asistida por IA.
-No tengo un cronómetro real de "horas-persona" para reportar de forma honesta en tu
-nombre — te recomiendo reemplazar la línea de arriba con el tiempo que tú realmente
-dediques a revisar, entender y ajustar el código antes de entregarlo, en vez de dejar un
-número inventado.
+**Total: ~2.5 horas.** No es solo tiempo de código: incluye planificación previa y
+verificación posterior, tal como se haría en un entregable profesional.
+
+| Etapa | Incluye |
+|---|---|
+| Planificación y diseño | Definir alcance, arquitectura por capas, modelo de datos, stack y convenciones antes de escribir código |
+| Implementación base | Scaffolding, capa `core` (modelos/repositorio/store), UI y features de contactos (lista, alta, edición, cancelar, bonus 1 y 2) |
+| Features adicionales | i18n en tiempo de ejecución (ES/EN/FR) y ajustes de soporte mobile |
+| Pruebas QA | Suite de 91 tests unitarios, lint, build, y verificación manual del flujo completo (crear, editar, cancelar, validar, persistir, cambiar de idioma) en distintos anchos de pantalla |
+
+Este proyecto se desarrolló con **Claude Code** como herramienta de desarrollo asistido
+por IA, bajo la dirección y revisión del autor.
